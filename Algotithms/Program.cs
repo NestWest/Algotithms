@@ -106,6 +106,7 @@ namespace Algoritms
             }
         }
     }
+    // The following algoritms have been filled in with Intellecode's assistance, and are not guaranteed to be correct or optimal.
     public class Searches
     {
         public static List<T> DepthFirstSearch<T>(Graph<T> graph, T startNode)
@@ -227,5 +228,120 @@ namespace Algoritms
                 k++;
             }
         }
+    }
+    public class Pathfinding
+    {
+        public static List<T> Dijkstra<T>(Graph<T> graph, T startNode, T endNode)
+        {
+            Dictionary<T, int> distances = new Dictionary<T, int>();
+            Dictionary<T, T> previousNodes = new Dictionary<T, T>();
+            List<T> unvisitedNodes = new List<T>();
+            foreach (T node in graph.GetNeighbors(startNode))
+            {
+                distances[node] = int.MaxValue;
+                previousNodes[node] = default(T);
+                unvisitedNodes.Add(node);
+            }
+            distances[startNode] = 0;
+            while (unvisitedNodes.Count > 0)
+            {
+                T currentNode = GetClosestNode(distances, unvisitedNodes);
+                unvisitedNodes.Remove(currentNode);
+                if (currentNode.Equals(endNode))
+                    break;
+                foreach (T neighbor in graph.GetNeighbors(currentNode))
+                {
+                    int altDistance = distances[currentNode] + 1; // Assuming all edges have weight 1
+                    if (altDistance < distances[neighbor])
+                    {
+                        distances[neighbor] = altDistance;
+                        previousNodes[neighbor] = currentNode;
+                    }
+                }
+            }
+            return ConstructPath(previousNodes, startNode, endNode);
+        }
+        private static T GetClosestNode<T>(Dictionary<T, int> distances, List<T> unvisitedNodes)
+        {
+            T closestNode = default(T);
+            int closestDistance = int.MaxValue;
+            foreach (T node in unvisitedNodes)
+            {
+                if (distances[node] < closestDistance)
+                {
+                    closestDistance = distances[node];
+                    closestNode = node;
+                }
+            }
+            return closestNode;
+        }
+        private static List<T> ConstructPath<T>(Dictionary<T, T> previousNodes, T startNode, T endNode)
+        {
+            List<T> path = new List<T>();
+            T currentNode = endNode;
+            while (!currentNode.Equals(startNode))
+            {
+                path.Add(currentNode);
+                currentNode = previousNodes[currentNode];
+            }
+            path.Add(startNode);
+            path.Reverse();
+            return path;
+        }
+        public static List<T> AStar<T>(Graph<T> graph, T startNode, T endNode, Func<T, T, int> heuristic)
+        {
+            Dictionary<T, int> gScores = new Dictionary<T, int>();
+            Dictionary<T, int> fScores = new Dictionary<T, int>();
+            Dictionary<T, T> cameFrom = new Dictionary<T, T>();
+            List<T> openSet = new List<T> { startNode };
+            gScores[startNode] = 0;
+            fScores[startNode] = heuristic(startNode, endNode);
+            while (openSet.Count > 0)
+            {
+                T currentNode = GetLowestFScoreNode(fScores, openSet);
+                if (currentNode.Equals(endNode))
+                    return ReconstructPath(cameFrom, currentNode);
+                openSet.Remove(currentNode);
+                foreach (T neighbor in graph.GetNeighbors(currentNode))
+                {
+                    int tentativeGScore = gScores[currentNode] + 1; // Assuming all edges have weight 1
+                    if (!gScores.ContainsKey(neighbor) || tentativeGScore < gScores[neighbor])
+                    {
+                        cameFrom[neighbor] = currentNode;
+                        gScores[neighbor] = tentativeGScore;
+                        fScores[neighbor] = gScores[neighbor] + heuristic(neighbor, endNode);
+                        if (!openSet.Contains(neighbor))
+                            openSet.Add(neighbor);
+                    }
+                }
+            }
+            return new List<T>(); // Return an empty path if no path is found
+        }
+        private static T GetLowestFScoreNode<T>(Dictionary<T, int> fScores, List<T> openSet)
+        {
+            T lowestNode = default(T);
+            int lowestScore = int.MaxValue;
+            foreach (T node in openSet)
+            {
+                if (fScores[node] < lowestScore)
+                {
+                    lowestScore = fScores[node];
+                    lowestNode = node;
+                }
+            }
+            return lowestNode;
+        }
+        private static List<T> ReconstructPath<T>(Dictionary<T, T> cameFrom, T currentNode)
+        {
+            List<T> totalPath = new List<T> { currentNode };
+            while (cameFrom.ContainsKey(currentNode))
+            {
+                currentNode = cameFrom[currentNode];
+                totalPath.Add(currentNode);
+            }
+            totalPath.Reverse();
+            return totalPath;
+        }
+
     }
 }
