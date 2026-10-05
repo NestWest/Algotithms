@@ -6,7 +6,8 @@ namespace Algoritms
     {
         public static void Main(string[] args)
         {
-
+            GridOptimisation gridOptimisation = new GridOptimisation();
+            gridOptimisation.GenerateGrid();
         }
     }
     /*public class Node<T>
@@ -343,5 +344,46 @@ namespace Algoritms
             return totalPath;
         }
 
+    }
+    //Written for platformer optimisation using random variables instead of procedural generation with noise
+    public class GridOptimisation
+    {
+        public int[,] grid = new int[100, 100];
+        private double targetFillPercentage = 0.4; // Target fill percentage 40% +- 0.05%
+        Random rnd = new Random();
+        private int fillCount;
+        private double fillPercentage;
+        private int emptyCount;
+        private double emptyPercentage;
+        public void GenerateGrid()
+        {
+            for (int y = 0; y < 100; y++)
+            {
+                for (int x = 0; x < 100; x++)
+                {
+                    grid[x, y] = rnd.Next(0, 2);
+                    if (grid[x, y] == 1)
+                    {
+                        fillCount++;
+                    }
+                    else
+                    {
+                        emptyCount++;
+                    }
+                }
+            }
+            fillPercentage = (double)fillCount / (fillCount + emptyCount) * 100;
+            emptyPercentage = (double)emptyCount / (fillCount + emptyCount) * 100;
+            Console.WriteLine($"Fill %: {fillPercentage:F2}");
+            Console.WriteLine($"Empty %: {emptyPercentage:F2}");
+            if (fillPercentage < targetFillPercentage * 100)
+            {
+
+            }
+            else if (fillPercentage > targetFillPercentage * 100)
+            {
+
+            }
+        }
     }
 }
